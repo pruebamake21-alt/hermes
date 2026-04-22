@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion Clone - Gestión de proyectos simplificada</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #0f172a;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        nav a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover { color: #0f172a; }
+
+        /* HERO */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: Georgia, serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .subheadline {
+            font-size: 1.25rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-primary {
+            background: #ef4444;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover { background: #dc2626; }
+
+        /* SECCIÓN: PROBLEMA */
+        .problem {
+            background: #f8fafc;
+            padding: 6rem 2rem;
+        }
+
+        .problem .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .problem h2 {
+            font-family: Georgia, serif;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .pain-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .pain-point {
+            padding: 2rem;
+            background: white;
+            border-left: 4px solid #ef4444;
+        }
+
+        .pain-point p { color: #64748b; }
+
+        /* SECCIÓN: SOLUCIÓN */
+        .solution {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .solution h2 {
+            font-family: Georgia, serif;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            font-family: Georgia, serif;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .feature p { color: #64748b; font-size: 0.95rem; }
+
+        /* FOOTER */
+        footer {
+            background: #0f172a;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        footer a { color: #ef4444; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <img src="./assets/logo.png" alt="Logo" class="logo-img">
+        <nav>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#faq">FAQ</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1>Tu workspace en un lugar</h1>
+        <p class="subheadline">Gestiona documentos, bases de datos y proyectos sin cambiar de aplicación. Simplemente, todo en uno.</p>
+        <button class="btn-primary">Empezar gratis</button>
+    </section>
+
+    <!-- PROBLEMA -->
+    <section class="problem">
+        <div class="container">
+            <h2>El caos de las herramientas</h2>
+            <div class="pain-points">
+                <div class="pain-point">
+                    <p>Documentos en Drive, tareas en Asana, bases de datos en otro lado. Nadie sabe dónde está nada.</p>
+                </div>
+                <div class="pain-point">
+                    <p>Cambiar entre 7 apps por día destruye tu flujo. Contexto switching = productividad cero.</p>
+                </div>
+                <div class="pain-point">
+                    <p>Datos duplicados. Versiones desactualizadas. Reuniones para encontrar información que ya existe.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUCIÓN -->
+    <section class="solution" id="features">
+        <h2>Todo centralizado</h2>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📄</div>
+                <h3>Documentos vivos</h3>
+                <p>Escribe, edita y colabora en tiempo real. Sin versiones perdidas.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🗄️</div>
+                <h3>Bases de datos</h3>
+                <p>Crea tablas, conecta datos y visualiza como necesites.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✅</div>
+                <h3>Tareas integradas</h3>
+                <p>Planifica, asigna y trackea todo sin salir del workspace.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2025 Notion Clone. Todos los derechos reservados.</p>
+        <p style="margin-top: 1rem;">
+            <a href="#">Privacidad</a> • <a href="#">Términos</a> • <a href="#">Contact</a>
+        </p>
+    </footer>
+</body>
+</html>
