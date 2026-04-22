@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DPD - Servicio de entregas rápido, confiable y profesional. Tu experto en logística.">
+    <meta name="theme-color" content="#E60012">
+    <title>DPD - Your Delivery Experts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Design Tokens */
+        :root {
+            --color-primary: #E60012;
+            --color-dark: #1A1A1A;
+            --color-white: #FFFFFF;
+            --color-light-gray: #F5F5F5;
+            --color-medium-gray: #757575;
+            
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            --spacing-2xl: 4rem;
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.5rem;
+            --font-size-2xl: 2rem;
+            --font-size-3xl: 2.5rem;
+            --font-size-4xl: 3rem;
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            color: var(--color-dark);
+            background-color: var(--color-white);
+            line-height: 1.6;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .section {
+            padding: var(--spacing-2xl) 0;
+        }
+
+        .section.dark {
+            background-color: var(--color-dark);
+            color: var(--color-white);
+        }
+
+        .section.light {
+            background-color: var(--color-light-gray);
+        }
+
+        /* Header & Navigation */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid var(--color-light-gray);
+            position: sticky;
+            top: 0;
+            background: var(--color-white);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .logo-box {
+            width: 36px;
+            height: 36px;
+            background: var(--color-primary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: var(--spacing-xl);
+        }
+
+        nav a {
+            color: var(--color-dark);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        nav a:hover {
+            color: var(--color-primary);
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                gap: var(--spacing-md);
+                display: none;
+            }
+            header {
+                flex-direction: column;
+                gap: var(--spacing-md);
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: var(--spacing-2xl);
+            padding: var(--spacing-2xl) 0;
+        }
+
+        .hero-content h1 {
+            font-size: var(--font-size-4xl);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-dark);
+        }
+
+        .hero-content p {
+            font-size: var(--font-size-lg);
+            color: var(--color-medium-gray);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.8;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            background-color: #cc0010;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--color-dark);
+            border: 2px solid var(--color-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-dark);
+            color: var(--color-white);
+        }
+
+        .hero-image {
+            position: relative;
+            height: 500px;
+            background: linear-gradient(135deg, var(--color-light-gray) 0%, #f0f0f0 100%);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-2xl);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-label {
+            color: var(--color-medium-gray);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Services Section */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-2xl);
+        }
+
+        .service-card {
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            background: var(--color-white);
+            border: 1px solid var(--color-light-gray);
+            transition: var(--transition);
+        }
+
+        .service-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--color-light-gray);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .service-card h3 {
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-dark);
+        }
+
+        .service-card p {
+            font-size: var(--font-size-sm);
+            color: var(--color-medium-gray);
+            line-height: 1.6;
+        }
+
+        /* Why Choose Section */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-2xl);
+            align-items: center;
+        }
+
+        .features-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .feature-check {
+            width: 24px;
+            height: 24px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-white);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .feature-text h4 {
+            font-size: var(--font-size-base);
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .feature-text p {
+            font-size: var(--font-size-sm);
+            color: var(--color-medium-gray);
+        }
+
+        .features-image {
+            height: 400px;
+            background: linear-gradient(135deg, var(--color-light-gray) 0%, #f0f0f0 100%);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .features-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .section-header h2 {
+            font-size: var(--font-size-3xl);
+            color: var(--color-dark);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section-header.dark h2 {
+            color: var(--color-white);
+        }
+
+        .section-header p {
+            font-size: var(--font-size-lg);
+            color: var(--color-medium-gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-header.dark p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Contact Section */
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-white);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-white);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--color-dark);
+            color: var(--color-white);
+            padding: var(--spacing-2xl) 0;
+            text-align: center;
+            border-top: 3px solid var(--color-primary);
+        }
+
+        footer p {
+            font-size: var(--font-size-sm);
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: var(--font-size-2xl);
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .section {
+                padding: var(--spacing-xl) 0;
+            }
+
+            nav ul {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .service-card {
+            animation: fadeIn 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .service-card:nth-child(1) { animation-delay: 0.1s; }
+        .service-card:nth-child(2) { animation-delay: 0.2s; }
+        .service-card:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="container">
+        <a href="#" class="logo">
+            <div class="logo-box">📦</div>
+            DPD
+        </a>
+        <nav>
+            <ul>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#por-que">Por qué elegir DPD</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="section">
+        <div class="container">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Tu experto en entregas rápidas y confiables</h1>
+                    <p>Servicio de logística profesional con cobertura nacional. Garantizamos entregas a tiempo, con seguimiento en tiempo real y soporte personalizado para tu negocio.</p>
+                    
+                    <div class="cta-group">
+                        <button class="btn btn-primary">Solicitar cotización</button>
+                        <button class="btn btn-secondary">Ver cómo funciona</button>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number">10K+</div>
+                            <div class="stat-label">Entregas mensuales</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">99%</div>
+                            <div class="stat-label">Puntualidad</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Soporte disponible</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-image">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Crect fill='%23E60012' width='500' height='400'/%3E%3Crect fill='white' x='50' y='80' width='400' height='240' rx='20'/%3E%3Crect fill='%23E60012' x='80' y='100' width='100' height='80' rx='8'/%3E%3Crect fill='%231A1A1A' x='200' y='100' width='220' height='20' rx='4'/%3E%3Crect fill='%231A1A1A' x='200' y='130' width='180' height='8' rx='4'/%3E%3Crect fill='%231A1A1A' x='200' y='145' width='160' height='8' rx='4'/%3E%3Ccircle cx='100' cy='300' r='35' fill='%23E60012'/%3E%3Ccircle cx='400' cy='300' r='35' fill='%23E60012'/%3E%3Ctext x='250' y='360' font-size='32' font-weight='bold' fill='%231A1A1A' text-anchor='middle'%3EDPD%3C/text%3E%3C/svg%3E" alt="DPD Van Illustration">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servicios" class="section light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nuestros Servicios</h2>
+                <p>Soluciones completas de logística adaptadas a tus necesidades</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚚</div>
+                    <h3>Entrega Estándar</h3>
+                    <p>Entregas puerta a puerta con tiempo de entrega garantizado. Cobertura en todo el país con tarifas competitivas.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">⚡</div>
+                    <h3>Entrega Express</h3>
+                    <p>Servicio prioritario para envíos urgentes. Entregas en 24 horas o menos con garantía de puntualidad.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📍</div>
+                    <h3>Seguimiento Real</h3>
+                    <p>Rastreo en tiempo real de tus envíos. Notificaciones automáticas y acceso a detalles de entrega.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose DPD Section -->
+    <section id="por-que" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Por qué elegir DPD</h2>
+                <p>Somos líderes en logística con años de experiencia y compromiso con la excelencia</p>
+            </div>
+
+            <div class="features">
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Profesionalismo probado</h4>
+                            <p>Equipo entrenado con estándares internacionales de calidad.</p>
+                        </div>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Cobertura nacional</h4>
+                            <p>Red de distribución en todas las ciudades principales del país.</p>
+                        </div>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Tecnología moderna</h4>
+                            <p>Plataforma digital integrada para gestión y seguimiento.</p>
+                        </div>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Seguridad garantizada</h4>
+                            <p>Protocolo de cuidado especializado para tus envíos valiosos.</p>
+                        </div>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Tarifas transparentes</h4>
+                            <p>Sin costos ocultos, cotizaciones claras y competitivas.</p>
+                        </div>
+                    </li>
+
+                    <li class="feature-item">
+                        <div class="feature-check">✓</div>
+                        <div class="feature-text">
+                            <h4>Atención personalizada</h4>
+                            <p>Equipo dedicado a resolver tus necesidades específicas.</p>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="features-image">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23f0f0f0' width='400' height='500'/%3E%3Crect fill='%23E60012' x='50' y='50' width='300' height='250' rx='15'/%3E%3Crect fill='white' x='70' y='70' width='260' height='210' rx='10'/%3E%3Ccircle cx='200' cy='150' r='40' fill='%23E60012'/%3E%3Ctext x='200' y='160' font-size='48' font-weight='bold' fill='white' text-anchor='middle'%3E✓%3C/text%3E%3Crect fill='%231A1A1A' x='60' y='330' width='280' height='120' rx='10'/%3E%3Ctext x='200' y='360' font-size='20' font-weight='bold' fill='white' text-anchor='middle'%3EConfianza y%3C/text%3E%3Ctext x='200' y='390' font-size='20' font-weight='bold' fill='white' text-anchor='middle'%3EProfesionalismo%3C/text%3E%3Ctext x='200' y='420' font-size='14' fill='%23E60012' text-anchor='middle'%3EDesdé 1985%3C/text%3E%3C/svg%3E" alt="DPD Values">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contacto" class="section dark">
+        <div class="container">
+            <div class="section-header dark">
+                <h2>Contáctanos hoy</h2>
+                <p>Solicita una cotización o resuelve tus dudas con nuestro equipo</p>
+            </div>
+
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">Nombre</label>
+                    <input type="text" id="name" name="name" placeholder="Tu nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+34 XXX XXX XXX">
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Mensaje</label>
+                    <textarea id="message" name="message" placeholder="Cuéntanos sobre tu envío..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar solicitud</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 DPD - Your Delivery Experts. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+</body>
+</html>
