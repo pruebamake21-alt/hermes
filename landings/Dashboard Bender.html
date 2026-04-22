@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C-Suite — Mission Control</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06080B;
+  --surface: #0C1118;
+  --surface2: #111820;
+  --border: #1A2332;
+  --border2: #243044;
+  --engineer: #22D3EE;
+  --architect: #A78BFA;
+  --ops: #34D399;
+  --marketing: #FB923C;
+  --research: #FBBF24;
+  --danger: #F87171;
+  --text: #E2E8F0;
+  --muted: #4A5568;
+  --dim: #1E2A3A;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  padding: 40px 24px 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left .eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.header-left h1 {
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.hermes-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 10px 18px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  gap: 14px;
+}
+
+.hermes-pill .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ops);
+  box-shadow: 0 0 10px var(--ops);
+  animation: blink 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink {
+  0%,100% { opacity:1; }
+  50% { opacity: 0.3; }
+}
+
+.pill-item { display: flex; flex-direction: column; gap: 2px; }
+.pill-label { color: var(--muted); font-size: 9px; letter-spacing: 0.1em; }
+.pill-value { color: var(--text); font-size: 11px; }
+.pill-sep { color: var(--border2); font-size: 18px; font-weight: 300; }
+
+/* ── ATTENTION BAR ── */
+.attention-bar {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  border-radius: 10px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+}
+
+.attention-bar .icon { color: var(--danger); font-size: 14px; }
+.attention-bar .msg { color: var(--text); }
+.attention-bar .msg span { color: var(--danger); font-weight: 700; }
+.attention-bar .ago { margin-left: auto; color: var(--muted); font-size: 10px; }
+
+/* ── GRID ── */
+.grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* ── CARD BASE ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.2s;
+}
+
+.card:hover { border-color: var(--accent); transform: translateY(-1px); }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1.5px;
+  background: var(--accent);
+  opacity: 0.9;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at top left, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.card[data-role="engineer"]  { --accent: var(--engineer); }
+.card[data-role="architect"] { --accent: var(--architect); }
+.card[data-role="ops"]       { --accent: var(--ops); }
+.card[data-role="marketing"] { --accent: var(--marketing); }
+.card[data-role="research"]  { --accent: var(--research); }
+.card[data-role="chart"]     { --accent: #6366F1; }
+.card[data-role="load"]      { --accent: #EC4899; }
+
+/* col spans */
+.col-4  { grid-column: span 4; }
+.col-6  { grid-column: span 6; }
+.col-8  { grid-column: span 8; }
+.col-12 { grid-column: span 12; }
+
+@media (max-width: 900px) {
+  .col-4, .col-6, .col-8 { grid-column: span 12; }
+}
+
+/* ── CARD HEADER ── */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.role-id { display: flex; align-items: center; gap: 9px; }
+
+.role-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.semaphore {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+}
+
+.sem-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+}
+
+.sem-dot.green  { background: var(--ops);    box-shadow: 0 0 8px var(--ops);    animation: blink 3s infinite; }
+.sem-dot.yellow { background: var(--research); box-shadow: 0 0 8px var(--research); animation: blink 1.5s infinite; }
+.sem-dot.red    { background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: blink 1s infinite; }
+
+.sem-label.green  { color: var(--ops); }
+.sem-label.yellow { color: var(--research); }
+.sem-label.red    { color: var(--danger); }
+
+/* ── DECISION BLOCK ── */
+.decision-block {
+  background: var(--dim);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.decision-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.decision-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.decision-text strong { color: var(--accent); }
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--muted);
+}
+
+.btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+/* ── NO BLOCKER ── */
+.no-blocker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--ops);
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--ops) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ops) 20%, transparent);
+  border-radius: 8px;
+}
+
+/* ── CONCLUSION ── */
+.conclusion {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.conclusion-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.conclusion-text {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #94A3B8;
+  font-style: italic;
+}
+
+.conclusion-text em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+/* ── RESEARCH CARD ── */
+.report-rows { margin-bottom: 16px; }
+
+.report-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.report-row:last-child { border-bottom: none; }
+
+.row-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tag-radar   { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); }
+.tag-comp    { background: color-mix(in srgb, var(--architect) 12%, transparent); color: var(--architect); border: 1px solid color-mix(in srgb, var(--architect) 25%, transparent); }
+.tag-saas    { background: color-mix(in srgb, var(--engineer) 12%, transparent); color: var(--engineer); border: 1px solid color-mix(in srgb, var(--engineer) 25%, transparent); }
+.tag-ai      { background: color-mix(in srgb, var(--research) 12%, transparent); color: var(--research); border: 1px solid color-mix(in srgb, var(--research) 25%, transparent); }
+.tag-market  { background: color-mix(in srgb, var(--marketing) 12%, transparent); color: var(--marketing); border: 1px solid color-mix(in srgb, var(--marketing) 25%, transparent); }
+
+.action-of-day {
+  background: color-mix(in srgb, var(--architect) 8%, var(--dim));
+  border: 1px solid color-mix(in srgb, var(--architect) 25%, transparent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.action-of-day .aod-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--architect);
+  margin-bottom: 5px;
+}
+
+/* ── CHARTS ── */
+.chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.chart-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── STAT BADGES ── */
+.stat-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.stat {
+  flex: 1;
+  min-width: 80px;
+  background: var(--dim);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── VELOCITY DETAIL ── */
+.vel-rows { margin-top: 8px; }
+
+.vel-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.vel-row:last-child { border-bottom: none; }
+
+.vel-role {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.vel-bar-wrap {
+  flex: 1;
+  background: var(--dim);
+  border-radius: 100px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.vel-bar {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--bar-color);
+  transition: width 0.5s ease;
+}
+
+.vel-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  width: 50px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.vel-time.fast { color: var(--ops); }
+.vel-time.mid  { color: var(--research); }
+.vel-time.slow { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="eyebrow">Sistema de agentes · Akon Labs</div>
+    <h1>C-Suite</h1>
+  </div>
+  <div class="hermes-pill">
+    <div class="dot"></div>
+    <div class="pill-item">
+      <span class="pill-label">Agente</span>
+      <span class="pill-value">HERMES v0.10</span>
+    </div>
+    <span class="pill-sep">|</span>
+    <div class="pill-item">
+      <span class="pill-label">Modo activo</span>
+      <span class="pill-value">ENGINEER</span>
+    </div>
+    <span class="pill-sep">|</span>
+    <div class="pill-item">
+      <span class="pill-label">Memoria</span>
+      <span class="pill-value">312 entradas</span>
+    </div>
+    <span class="pill-sep">|</span>
+    <div class="pill-item">
+      <span class="pill-label">Actualizado</span>
+      <span class="pill-value">hace 3 min</span>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENTION BAR -->
+<div class="attention-bar">
+  <span class="icon">⚠</span>
+  <span class="msg"><span>2 decisiones pendientes</span> llevan más de 24h sin resolverse — ARCHITECT y MARKETING están bloqueados</span>
+  <span class="ago">desde ayer 09:14</span>
+</div>
+
+<!-- GRID -->
+<div class="grid">
+
+  <!-- ENGINEER col-4 -->
+  <div class="card col-4" data-role="engineer">
+    <div class="card-head">
+      <div class="role-id">
+        <span>⚙️</span>
+        <span class="role-name">Engineer</span>
+      </div>
+      <div class="semaphore">
+        <div class="sem-dot yellow"></div>
+        <span class="sem-label yellow">Atención</span>
+      </div>
+    </div>
+
+    <div class="decision-block">
+      <div class="decision-label">⬡ Decisión pendiente · 3h</div>
+      <div class="decision-text">PR <strong>#14 — refactor auth middleware</strong> listo para merge. Tests en verde. ¿Aprobamos?</div>
+      <div class="actions">
+        <button class="btn btn-primary">Mergear</button>
+        <button class="btn btn-ghost">Ver diff</button>
+        <button class="btn btn-ghost">Posponer</button>
+      </div>
+    </div>
+
+    <div class="conclusion">
+      <div class="conclusion-label">↳ Conclusión de ayer</div>
+      <div class="conclusion-text">Cerré <em>4 tareas</em>, todas delegadas a Claude Code sin incidencias. El test de integración de pagos sigue pendiente — lleva <em>2 días</em> en el backlog.</div>
+    </div>
+  </div>
+
+  <!-- ARCHITECT col-4 -->
+  <div class="card col-4" data-role="architect">
+    <div class="card-head">
+      <div class="role-id">
+        <span>🏗️</span>
+        <span class="role-name">Architect</span>
+      </div>
+      <div class="semaphore">
+        <div class="sem-dot red"></div>
+        <span class="sem-label red">Bloqueado</span>
+      </div>
+    </div>
+
+    <div class="decision-block">
+      <div class="decision-label">⬡ Decisión pendiente · 27h</div>
+      <div class="decision-text">¿Migramos autenticación a <strong>Edge Functions</strong>? Reduce latencia ~40% pero requiere refactor de 3 módulos. He preparado el análisis de trade-offs.</div>
+      <div class="actions">
+        <button class="btn btn-primary">Migramos</button>
+        <button class="btn btn-ghost">Ver análisis</button>
+        <button class="btn btn-ghost">Descartar</button>
+      </div>
+    </div>
+
+    <div class="conclusion">
+      <div class="conclusion-label">↳ Conclusión de ayer</div>
+      <div class="conclusion-text">Documenté <em>2 decisiones técnicas</em> en memoria. El stack sigue siendo Next.js + Supabase. Identifiqué riesgo de <em>vendor lock-in</em> en el módulo de storage — requiere atención este sprint.</div>
+    </div>
+  </div>
+
+  <!-- OPS col-4 -->
+  <div class="card col-4" data-role="ops">
+    <div class="card-head">
+      <div class="role-id">
+        <span>🔧</span>
+        <span class="role-name">Ops</span>
+      </div>
+      <div class="semaphore">
+        <div class="sem-dot green"></div>
+        <span class="sem-label green">Autónomo</span>
+      </div>
+    </div>
+
+    <div class="no-blocker">✓ Sin bloqueos · Todo corriendo</div>
+
+    <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+      <div class="stat" style="--accent:var(--ops)">
+        <div class="stat-num">4</div>
+        <div class="stat-label">Crons activos</div>
+      </div>
+      <div class="stat" style="--accent:var(--ops)">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Alertas</div>
+      </div>
+      <div class="stat" style="--accent:var(--ops)">
+        <div class="stat-num">99.8%</div>
+        <div class="stat-label">Uptime 30d</div>
+      </div>
+    </div>
+
+    <div class="conclusion">
+      <div class="conclusion-label">↳ Conclusión de ayer</div>
+      <div class="conclusion-text">Backup de DB ejecutado <em>4 veces</em> sin errores. El cron de RESEARCH se lanzó a las 07:02. Detecté un <em>timeout en deploy</em> a las 03:14 — se resolvió solo en retry.</div>
+    </div>
+  </div>
+
+  <!-- MARKETING col-4 -->
+  <div class="card col-4" data-role="marketing">
+    <div class="card-head">
+      <div class="role-id">
+        <span>📣</span>
+        <span class="role-name">Marketing</span>
+      </div>
+      <div class="semaphore">
+        <div class="sem-dot red"></div>
+        <span class="sem-label red">Bloqueado</span>
+      </div>
+    </div>
+
+    <div class="decision-block">
+      <div class="decision-label">⬡ Decisión pendiente · 31h</div>
+      <div class="decision-text">A/B test en <strong>headline de /pricing</strong> listo para lanzar. Variante B estima +12% conversión según benchmark del sector. ¿Activamos?</div>
+      <div class="actions">
+        <button class="btn btn-primary">Activar test</button>
+        <button class="btn btn-ghost">Ver variantes</button>
+        <button class="btn btn-ghost">Posponer</button>
+      </div>
+    </div>
+
+    <div class="conclusion">
+      <div class="conclusion-label">↳ Conclusión de ayer</div>
+      <div class="conclusion-text">Generé <em>3 copies</em> para redes, ninguno publicado aún. El tráfico orgánico subió <em>+8%</em> respecto al martes. El pricing sigue sin revisarse desde hace <em>3 semanas</em>.</div>
+    </div>
+  </div>
+
+  <!-- RESEARCH col-8 -->
+  <div class="card col-8" data-role="research">
+    <div class="card-head">
+      <div class="role-id">
+        <span>🔍</span>
+        <span class="role-name">Research · Reporte 07:00</span>
+      </div>
+      <div class="semaphore">
+        <div class="sem-dot green"></div>
+        <span class="sem-label green">Entregado</span>
+      </div>
+    </div>
+
+    <div class="action-of-day">
+      <div class="aod-label">💡 Acción del día</div>
+      Actualiza la página de pricing hoy — el competidor principal subió precios ayer un 20%. Ventana de captación abierta esta semana.
+    </div>
+
+    <div class="report-rows">
+      <div class="report-row">
+        <span class="row-tag tag-radar">🚨 RADAR</span>
+        <span><strong style="color:#F87171">Emergence AI</strong> lanza API pública con pricing 40% por debajo de OpenAI. Evaluar como proveedor de inferencia para reducir costes operativos.</span>
+      </div>
+      <div class="report-row">
+        <span class="row-tag tag-comp">COMP</span>
+        <span>Competidor directo sube precio del plan Pro de $29 a $35. Sus usuarios están quejándose en Reddit. Oportunidad de captura activa esta semana.</span>
+      </div>
+      <div class="report-row">
+        <span class="row-tag tag-ai">IA</span>
+        <span>Claude Sonnet 4.6 supera a GPT-4o en coding benchmarks según evaluación independiente de LMSYS. Considerar migración del pipeline de generación de código.</span>
+      </div>
+      <div class="report-row">
+        <span class="row-tag tag-saas">SAAS</span>
+        <span>Micro-SaaS verticales en salud crecen ×3 en búsquedas orgánicas este trimestre. Patrón similar al de fintech en 2022. Señal temprana de mercado.</span>
+      </div>
+      <div class="report-row">
+        <span class="row-tag tag-market">MARKET</span>
+        <span>Tendencia: onboarding sin fricción con "aha moment" en menos de 90 segundos aumenta retención D7 hasta un 34% según estudio de 200 SaaS. Revisar nuestro flujo.</span>
+      </div>
+    </div>
+
+    <div class="conclusion">
+      <div class="conclusion-label">↳ Conclusión de ayer</div>
+      <div class="conclusion-text">Procesé <em>47 fuentes</em>, detecté <em>1 alerta RADAR</em> y <em>4 señales relevantes</em>. La oportunidad competitiva de pricing es la más urgente de la semana — lleva <em>2 días</em> en el reporte sin acción.</div>
+    </div>
+  </div>
+
+  <!-- CHART: Velocidad de decisión col-6 -->
+  <div class="card col-6" data-role="chart">
+    <div class="card-head" style="margin-bottom:4px">
+      <div>
+        <div class="chart-title">Velocidad de decisión</div>
+        <div class="chart-sub">Horas entre alerta de Hermes y acción tuya · últimas 3 semanas</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="velocityChart"></canvas>
+    </div>
+
+    <div class="vel-rows" style="margin-top:16px">
+      <div class="vel-row">
+        <span class="vel-role" style="color:var(--engineer)">⚙️ Engineer</span>
+        <div class="vel-bar-wrap"><div class="vel-bar" style="width:25%; --bar-color:var(--engineer)"></div></div>
+        <span class="vel-time fast">~2h avg</span>
+      </div>
+      <div class="vel-row">
+        <span class="vel-role" style="color:var(--architect)">🏗️ Architect</span>
+        <div class="vel-bar-wrap"><div class="vel-bar" style="width:80%; --bar-color:var(--architect)"></div></div>
+        <span class="vel-time slow">~27h avg</span>
+      </div>
+      <div class="vel-row">
+        <span class="vel-role" style="color:var(--ops)">🔧 Ops</span>
+        <div class="vel-bar-wrap"><div class="vel-bar" style="width:5%; --bar-color:var(--ops)"></div></div>
+        <span class="vel-time fast">~0.5h avg</span>
+      </div>
+      <div class="vel-row">
+        <span class="vel-role" style="color:var(--marketing)">📣 Marketing</span>
+        <div class="vel-bar-wrap"><div class="vel-bar" style="width:90%; --bar-color:var(--marketing)"></div></div>
+        <span class="vel-time slow">~31h avg</span>
+      </div>
+      <div class="vel-row">
+        <span class="vel-role" style="color:var(--research)">🔍 Research</span>
+        <div class="vel-bar-wrap"><div class="vel-bar" style="width:45%; --bar-color:var(--research)"></div></div>
+        <span class="vel-time mid">~8h avg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART: Carga por rol col-6 -->
+  <div class="card col-6" data-role="load">
+    <div class="card-head" style="margin-bottom:4px">
+      <div>
+        <div class="chart-title">Carga por rol</div>
+        <div class="chart-sub">Acciones ejecutadas por día · últimas 3 semanas</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap" style="height:200px">
+      <canvas id="loadChart"></canvas>
+    </div>
+
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--engineer)"></div>Engineer</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--architect)"></div>Architect</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--ops)"></div>Ops</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--marketing)"></div>Marketing</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--research)"></div>Research</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const mono = "'Space Mono', monospace";
+const muted = '#4A5568';
+const border = '#1A2332';
+
+Chart.defaults.color = muted;
+Chart.defaults.font.family = mono;
+Chart.defaults.font.size = 10;
+
+// VELOCITY CHART
+const days = ['L 31','M 1','X 2','J 3','V 4','L 7','M 8','X 9','J 10','V 11','L 14','M 15','X 16','J 17','V 18','L 21','M 22','X 23'];
+
+new Chart(document.getElementById('velocityChart'), {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: [
+      {
+        label: 'Engineer',
+        data: [1.5, 2, 1, 3, 2, 1.5, 2.5, 1, 2, 1.5, 3, 2, 1, 2.5, 1.5, 2, 3, 2],
+        borderColor: '#22D3EE',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.4
+      },
+      {
+        label: 'Architect',
+        data: [8, 24, 12, 30, 18, 6, 28, 20, 14, 32, 10, 26, 18, 34, 22, 12, 27, 27],
+        borderColor: '#A78BFA',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.4
+      },
+      {
+        label: 'Marketing',
+        data: [12, 18, 26, 8, 30, 20, 14, 28, 10, 24, 16, 32, 22, 12, 28, 18, 31, 31],
+        borderColor: '#FB923C',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.4
+      },
+      {
+        label: 'Research',
+        data: [6, 10, 4, 12, 8, 6, 10, 4, 8, 6, 10, 4, 8, 6, 10, 6, 8, 8],
+        borderColor: '#FBBF24',
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        tension: 0.4,
+        borderDash: [4,3]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0C1118',
+        borderColor: '#1A2332',
+        borderWidth: 1,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}h` }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: border },
+        ticks: { maxTicksLimit: 6 }
+      },
+      y: {
+        grid: { color: border },
+        title: { display: true, text: 'horas', color: muted },
+        min: 0
+      }
+    }
+  }
+});
+
+// LOAD CHART
+new Chart(document.getElementById('loadChart'), {
+  type: 'bar',
+  data: {
+    labels: days,
+    datasets: [
+      { label: 'Engineer',   data: [4,6,3,7,5,4,6,3,5,4,7,5,3,6,4,5,6,4], backgroundColor: '#22D3EE22', borderColor: '#22D3EE', borderWidth: 1 },
+      { label: 'Architect',  data: [1,0,2,1,0,1,2,0,1,2,0,1,2,1,0,1,1,0], backgroundColor: '#A78BFA22', borderColor: '#A78BFA', borderWidth: 1 },
+      { label: 'Ops',        data: [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2], backgroundColor: '#34D39922', borderColor: '#34D399', borderWidth: 1 },
+      { label: 'Marketing',  data: [1,2,0,1,2,0,1,2,1,0,2,1,0,1,2,1,0,2], backgroundColor: '#FB923C22', borderColor: '#FB923C', borderWidth: 1 },
+      { label: 'Research',   data: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], backgroundColor: '#FBBF2422', borderColor: '#FBBF24', borderWidth: 1 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0C1118',
+        borderColor: '#1A2332',
+        borderWidth: 1
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        grid: { color: border },
+        ticks: { maxTicksLimit: 6 }
+      },
+      y: {
+        stacked: true,
+        grid: { color: border },
+        title: { display: true, text: 'acciones', color: muted }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
