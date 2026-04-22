@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domótica Levante - Instalaciones Eléctricas y Domótica en el Levante Español</title>
+    <meta name="description" content="Domótica Levante: expertos en instalaciones eléctricas y sistemas de domótica en Valencia, Alicante, Murcia y Castellón. Soluciones inteligentes para tu hogar o empresa.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1A5497;
+            --primary-dark: #1C364E;
+            --primary-light: #2A6DB5;
+            --secondary: #1C364E;
+            --surface: #ffffff;
+            --surface-alt: #F8F9FA;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --border: #e5e5e5;
+            --gray-light: #ABACB0;
+            --success: #059669;
+            --radius: 8px;
+            --radius-lg: 16px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--surface);
+            color: var(--text-primary);
+            line-height: 1.6;
+            letter-spacing: -0.3px;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--surface);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-phone {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: var(--surface);
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-phone:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .nav-phone svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .hero h1 .highlight {
+            color: var(--primary);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--surface);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26, 84, 151, 0.25);
+        }
+
+        .btn-secondary {
+            background: var(--surface-alt);
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-light);
+            border-color: var(--gray-light);
+        }
+
+        .hero-visual {
+            margin-top: 4rem;
+            position: relative;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--surface);
+            font-size: 1.1rem;
+        }
+
+        .hero-visual-icon {
+            font-size: 5rem;
+            opacity: 0.9;
+        }
+
+        /* Services Section */
+        .services {
+            background: var(--surface-alt);
+            padding: 6rem 2rem;
+        }
+
+        .services-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .service-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 12px 32px rgba(26, 84, 151, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .service-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Coverage Section */
+        .coverage {
+            padding: 6rem 2rem;
+            background: var(--surface);
+        }
+
+        .coverage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .coverage-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+            line-height: 1.2;
+        }
+
+        .coverage-content p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .coverage-list {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .coverage-list li {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            align-items: center;
+        }
+
+        .coverage-list li::before {
+            content: '📍';
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .coverage-list li span {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .coverage-visual {
+            background: linear-gradient(135deg, var(--surface-alt) 0%, #e8ecf0 100%);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            border: 2px solid var(--primary);
+        }
+
+        .coverage-map-placeholder {
+            color: var(--primary);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Why Choose Section */
+        .why-choose {
+            padding: 6rem 2rem;
+            background: var(--surface-alt);
+        }
+
+        .why-choose-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .why-choose-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+            line-height: 1.2;
+        }
+
+        .why-choose-content p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .features-list {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .features-list li {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .features-list li span {
+            color: var(--text-secondary);
+        }
+
+        .why-choose-visual {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-alt) 100%);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Contact Section */
+        .contact {
+            background: var(--secondary);
+            color: var(--surface);
+            padding: 6rem 2rem;
+        }
+
+        .contact-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+        }
+
+        .contact-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--primary);
+            color: var(--surface);
+            padding: 1.2rem 2.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .contact-cta:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26, 84, 151, 0.3);
+        }
+
+        .contact-cta svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-method {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-method h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-method a {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-method a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            color: var(--surface);
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .why-choose-container,
+            .coverage-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-phone span {
+                display: none;
+            }
+
+            .hero {
+                padding: 4rem 2rem 3rem;
+            }
+
+            .services,
+            .why-choose,
+            .coverage,
+            .contact {
+                padding: 4rem 2rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-visual {
+                height: 250px;
+            }
+
+            .nav-container {
+                padding: 1rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-mark">DL</div>
+                <span>Domótica Levante</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#cobertura">Cobertura</a></li>
+                <li><a href="#por-que">¿Por qué nosotros?</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <a href="tel:+34961234567" class="nav-phone">
+                <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                </svg>
+                <span>Llámanos</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Instalaciones Eléctricas y <span class="highlight">Domótica</span> Profesional</h1>
+            <p>Expertos en soluciones inteligentes para hogares y empresas en todo el Levante español. Instalación, mantenimiento y proyectos personalizados con garantía de calidad.</p>
+            <div class="cta-group">
+                <a href="tel:+34961234567" class="btn btn-primary">📞 Solicitar Presupuesto</a>
+                <a href="#servicios" class="btn btn-secondary">Ver Servicios</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-visual-icon">⚡</div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="servicios">
+        <div class="services-container">
+            <div class="section-header">
+                <h2>Nuestros Servicios</h2>
+                <p>Soluciones integrales para todas tus necesidades eléctricas y de automatización</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🏠</div>
+                    <h3>Domótica Inteligente</h3>
+                    <p>Sistemas de hogar inteligente: iluminación, climatización, seguridad y control remoto. Integración con asistentes de voz y gestión desde tu móvil.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">⚡</div>
+                    <h3>Instalaciones Eléctricas</h3>
+                    <p>Instalaciones completas para viviendas y negocios. Cuadros eléctricos, cableado, puntos de luz, enchufes y sistemas de eficiencia energética.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🔒</div>
+                    <h3>Seguridad y Alarmas</h3>
+                    <p>Sistemas de videovigilancia, alarmas antiintrusión, detectores de humo y control de accesos. Protección 24 horas para tu tranquilidad.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🔧</div>
+                    <h3>Mantenimiento</h3>
+                    <p>Servicios de mantenimiento preventivo y correctivo. Revisiones periódicas y atención de urgencias con respuesta rápida garantizada.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💡</div>
+                    <h3>Eficiencia Energética</h3>
+                    <p>Auditorías energéticas, instalación de LED, paneles solares y sistemas de gestión energética para reducir tu consumo y factura.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🏗️</div>
+                    <h3>Proyectos Personalizados</h3>
+                    <p>Diseño y ejecución de proyectos eléctricos a medida. Instalaciones industriales, locales comerciales y reformas integrales.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coverage Section -->
+    <section class="coverage" id="cobertura">
+        <div class="coverage-container">
+            <div class="coverage-content">
+                <h2>Cobertura en el Levante Español</h2>
+                <p> damos servicio en toda la Comunidad Valenciana, Región de Murcia y provinces limítrofes. Nuestro equipo técnico se desplaza a tu ubicación de forma rápida y eficiente.</p>
+                <ul class="coverage-list">
+                    <li><span>Valencia y provincia</span></li>
+                    <li><span>Alicante y provincia</span></li>
+                    <li><span>Murcia y comarca</span></li>
+                    <li><span>Castellón y provincia</span></li>
+                    <li><span>Albacete</span></li>
+                    <li><span>Almería</span></li>
+                </ul>
+            </div>
+            <div class="coverage-visual">
+                <div class="coverage-map-placeholder">
+                    🗺️ Levante Español<br>
+                    Servicio de cobertura completa
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Section -->
+    <section class="why-choose" id="por-que">
+        <div class="why-choose-container">
+            <div class="why-choose-content">
+                <h2>¿Por qué elegir Domótica Levante?</h2>
+                <p>Con años de experiencia en el sector, nuestro equipo de profesionales garantiza un servicio de calidad, eficiente y adaptado a tus necesidades específicas.</p>
+                <ul class="features-list">
+                    <li><span>Más de 15 años de experiencia en instalaciones eléctricas</span></li>
+                    <li><span>Equipo técnico certificado y en continua formación</span></li>
+                    <li><span>Presupuestos sin compromiso y precios competitivos</span></li>
+                    <li><span>Garantía en todos nuestros trabajos e instalaciones</span></li>
+                    <li><span>Respuesta rápida y disponibilidad para urgencias</span></li>
+                    <li><span>Materiales de primeras marcas y calidad garantizada</span></li>
+                </ul>
+            </div>
+            <div class="why-choose-visual">
+                <div>🏆<br><br>Calidad y<br>Profesionalidad<br>Garantizada</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contacto">
+        <div class="contact-container">
+            <h2>¿Necesitas una instalación?</h2>
+            <p>Contacta con nosotros sin compromiso. Te asesoramos y presupuestamos tu proyecto de forma gratuita.</p>
+            <a href="tel:+34961234567" class="contact-cta">
+                <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                </svg>
+                961 234 567
+            </a>
+            <div class="contact-methods">
+                <div class="contact-method">
+                    <h3>📞 Teléfono</h3>
+                    <a href="tel:+34961234567">961 234 567</a>
+                </div>
+                <div class="contact-method">
+                    <h3>✉️ Email</h3>
+                    <a href="mailto:info@domoticalevante.es">info@domoticalevante.es</a>
+                </div>
+                <div class="contact-method">
+                    <h3>⏰ Horario</h3>
+                    <span>Lun-Vie: 8:00 - 19:00</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Domótica Levante. Todos los derechos reservados. Instalaciones eléctricas y domótica en el Levante español.</p>
+    </footer>
+</body>
+</html>
