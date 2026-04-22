@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bender Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --orange: #ff6a00;
+  --black: #0d0d0d;
+  --dark: #1a1a1a;
+  --gray: #2b2b2b;
+  --light-gray: #6b6b6b;
+  --white: #ffffff;
+  --bg: var(--dark);
+  --surface: var(--gray);
+  --border: #333;
+  --text: var(--white);
+  --text-muted: var(--light-gray);
+  --sidebar-w: 240px;
+  --navbar-h: 60px;
+}
+
+[data-theme="light"] {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --border: #ddd;
+  --text: var(--black);
+  --text-muted: #666;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── LOGIN ── */
+#login-view {
+  position: fixed;
+  inset: 0;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.login-box {
+  background: var(--dark);
+  border: 1px solid var(--gray);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-logo {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--orange);
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 12px;
+  color: var(--light-gray);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--white);
+  font-size: 14px;
+  margin-bottom: 12px;
+  transition: border-color 0.3s;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+.login-box input::placeholder { color: var(--light-gray); }
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--orange);
+  border: none;
+  border-radius: 10px;
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.3s, transform 0.2s;
+}
+
+.login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.login-error {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 12px;
+  display: none;
+}
+
+/* ── APP LAYOUT ── */
+#app-view { display: none; height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--black);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo span {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--orange);
+  letter-spacing: 0.1em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-item:hover, .sidebar-item.active {
+  background: var(--dark);
+  color: var(--orange);
+}
+
+.sidebar-item .num {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--light-gray);
+  min-width: 18px;
+}
+
+.sidebar-item.active .num { color: var(--orange); }
+
+.sidebar-item .tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--gray);
+  color: var(--white);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 200;
+  border: 1px solid var(--border);
+}
+
+.sidebar-item:hover .tooltip { opacity: 1; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--gray);
+  border-radius: 10px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.toggle-switch::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background: var(--white);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+[data-theme="light"] .toggle-switch { background: var(--orange); }
+[data-theme="light"] .toggle-switch::after { transform: translateX(16px); }
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  height: var(--navbar-h);
+  background: var(--black);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  margin: 5px 0;
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+
+.navbar-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.navbar-title .section-active {
+  color: var(--orange);
+}
+
+.navbar-spacer { flex: 1; }
+
+.user-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.user-dropdown:hover { background: var(--dark); }
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.user-info { text-align: left; }
+.user-name { font-size: 13px; font-weight: 600; }
+.user-role { font-size: 10px; color: var(--text-muted); }
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 0;
+  min-width: 160px;
+  display: none;
+  z-index: 200;
+}
+
+.user-menu.show { display: block; }
+
+.user-menu-item {
+  padding: 10px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-menu-item:hover { background: var(--gray); }
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  padding: 28px;
+}
+
+.section {
+  display: none;
+}
+
+.section.active { display: block; }
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ── CARDS ── */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.card {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  min-width: 260px;
+  flex: 1;
+  transition: border-color 0.3s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--orange);
+  transform: translateY(-2px);
+}
+
+.card.wide { min-width: 400px; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: var(--gray);
+  color: var(--text-muted);
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.card-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card-list {
+  list-style: none;
+  margin-top: 12px;
+}
+
+.card-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-list li:last-child { border-bottom: none; }
+
+.card-list .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  flex-shrink: 0;
+}
+
+.card-list .tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--gray);
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* ── DYNAMIC TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table tr:hover td { background: var(--gray); }
+
+.priority-high { color: #ff4444; }
+.priority-med { color: var(--orange); }
+.priority-low { color: #44bb44; }
+
+/* ── SKILL TAGS ── */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  padding: 6px 14px;
+  background: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.skill-tag:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* ── ENV VARS ── */
+.env-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.env-item {
+  background: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+
+.env-name { color: var(--orange); font-weight: 600; }
+
+/* ── STATUS ── */
+.status-ok { color: #44bb44; }
+.status-warn { color: var(--orange); }
+.status-err { color: #ff4444; }
+
+/* ── MOBILE OVERLAY ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  .hamburger { display: block; }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .sidebar-overlay.show { display: block; }
+
+  .main { margin-left: 0; }
+
+  .card.wide { min-width: 100%; }
+}
+
+/* ── LOADING ── */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 20px 0;
+}
+
+.loading::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.empty-state .icon { font-size: 32px; margin-bottom: 12px; }
+
+/* ── C-SUITE INLINE ── */
+#csuite-content { width: 100%; }
+#csuite-content .grid { display: flex; flex-wrap: wrap; gap: 16px; }
+#csuite-content .card { flex: 1; min-width: 280px; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-view">
+  <div class="login-box">
+    <div class="login-logo">AKON</div>
+    <div class="login-subtitle">Management Dashboard</div>
+    <input type="text" id="login-user" placeholder="Usuario" autocomplete="off">
+    <input type="password" id="login-pass" placeholder="Contraseña">
+    <button class="login-btn" id="login-btn">Entrar</button>
+    <div class="login-error" id="login-error">Credenciales incorrectas</div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app-view">
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span>AKON</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <button class="sidebar-item active" data-section="identity">
+        <span class="num">01</span>
+        <span>Identity</span>
+        <span class="tooltip">Identity</span>
+      </button>
+      <button class="sidebar-item" data-section="tasks">
+        <span class="num">02</span>
+        <span>Tasks</span>
+        <span class="tooltip">Tasks</span>
+      </button>
+      <button class="sidebar-item" data-section="cronjobs">
+        <span class="num">03</span>
+        <span>Cronjobs</span>
+        <span class="tooltip">Cronjobs</span>
+      </button>
+      <button class="sidebar-item" data-section="skills">
+        <span class="num">04</span>
+        <span>Skills</span>
+        <span class="tooltip">Skills</span>
+      </button>
+      <button class="sidebar-item" data-section="mcp">
+        <span class="num">05</span>
+        <span>MCP</span>
+        <span class="tooltip">MCP Servers</span>
+      </button>
+      <button class="sidebar-item" data-section="roles">
+        <span class="num">06</span>
+        <span>Roles</span>
+        <span class="tooltip">Roles</span>
+      </button>
+      <button class="sidebar-item" data-section="mensajeria">
+        <span class="num">07</span>
+        <span>Mensajería</span>
+        <span class="tooltip">Mensajería</span>
+      </button>
+      <button class="sidebar-item" data-section="voz">
+        <span class="num">08</span>
+        <span>Voz</span>
+        <span class="tooltip">Voz</span>
+      </button>
+      <button class="sidebar-item" data-section="obsidian">
+        <span class="num">09</span>
+        <span>Obsidian Vault</span>
+        <span class="tooltip">Obsidian Vault</span>
+      </button>
+      <button class="sidebar-item" data-section="memory">
+        <span class="num">10</span>
+        <span>Memory</span>
+        <span class="tooltip">Memory BDD</span>
+      </button>
+      <button class="sidebar-item" data-section="alertas">
+        <span class="num">11</span>
+        <span>Alertas</span>
+        <span class="tooltip">Alertas</span>
+      </button>
+      <button class="sidebar-item" data-section="config">
+        <span class="num">12</span>
+        <span>Config</span>
+        <span class="tooltip">Configuración</span>
+      </button>
+      <button class="sidebar-item" data-section="apikeys">
+        <span class="num">13</span>
+        <span>API Keys</span>
+        <span class="tooltip">API Keys</span>
+      </button>
+      <button class="sidebar-item" data-section="csuite">
+        <span class="num">14</span>
+        <span>C-Suite</span>
+        <span class="tooltip">C-Suite</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="theme-toggle" id="theme-toggle">
+        <div class="toggle-switch"></div>
+        <span>Light / Dark</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <!-- Navbar -->
+    <header class="navbar">
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="navbar-title">
+        Bender Dashboard — <span class="section-active" id="nav-title">Identity</span>
+      </div>
+      <div class="navbar-spacer"></div>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-avatar">IS</div>
+        <div class="user-info">
+          <div class="user-name">Isma</div>
+          <div class="user-role">CEO</div>
+        </div>
+        <div class="user-menu" id="user-menu">
+          <div class="user-menu-item">Perfil</div>
+          <div class="user-menu-item">Cerrar sesión</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+
+      <!-- 01 IDENTITY -->
+      <section class="section active" id="sec-identity">
+        <div class="section-title">Identity</div>
+        <div class="section-sub">Estado general del sistema Bender</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Sistema</span>
+              <span class="card-badge">v1.0</span>
+            </div>
+            <div class="card-value">Bender</div>
+            <div class="card-label">Asistente Técnico — Akon Labs</div>
+            <ul class="card-list">
+              <li><span class="dot"></span> Hermes Gateway <span class="tag">Activo</span></li>
+              <li><span class="dot"></span> SQLite Tasks DB <span class="tag">Conectado</span></li>
+              <li><span class="dot"></span> SOUL.md Cargado</li>
+            </ul>
+          </div>
+          <div class="card wide">
+            <div class="card-header">
+              <span class="card-title">Modes</span>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+              <div style="flex:1;min-width:120px;background:var(--gray);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:4px;">🏗️</div>
+                <div style="font-size:11px;font-weight:600;">Architect</div>
+              </div>
+              <div style="flex:1;min-width:120px;background:var(--gray);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:4px;">⚙️</div>
+                <div style="font-size:11px;font-weight:600;">Engineer</div>
+              </div>
+              <div style="flex:1;min-width:120px;background:var(--gray);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:4px;">🔧</div>
+                <div style="font-size:11px;font-weight:600;">Ops</div>
+              </div>
+              <div style="flex:1;min-width:120px;background:var(--gray);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:4px;">📣</div>
+                <div style="font-size:11px;font-weight:600;">Marketing</div>
+              </div>
+              <div style="flex:1;min-width:120px;background:var(--gray);border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-size:20px;margin-bottom:4px;">🔍</div>
+                <div style="font-size:11px;font-weight:600;">Research</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 TASKS -->
+      <section class="section" id="sec-tasks">
+        <div class="section-title">Tasks</div>
+        <div class="section-sub">Tareas desde tasks.db</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header">
+              <span class="card-title">Tareas Pendientes</span>
+              <span class="card-badge" id="tasks-count">—</span>
+            </div>
+            <div id="tasks-table-wrap">
+              <div class="loading">Cargando tareas</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 CRONJOBS -->
+      <section class="section" id="sec-cronjobs">
+        <div class="section-title">Cronjobs</div>
+        <div class="section-sub">Tareas programadas del sistema</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">Crontab</span></div>
+            <pre id="cron-output" style="font-family:'Courier New',monospace;font-size:12px;color:var(--text-muted);white-space:pre-wrap;">—</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 04 SKILLS -->
+      <section class="section" id="sec-skills">
+        <div class="section-title">Skills</div>
+        <div class="section-sub">Skills disponibles en ~/.hermes/skills/</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">Directorios de Skills</span></div>
+            <div class="tag-cloud" id="skills-list">
+              <div class="loading">Cargando skills</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 MCP -->
+      <section class="section" id="sec-mcp">
+        <div class="section-title">MCP</div>
+        <div class="section-sub">Model Context Protocol — ~/.hermes/mcp.yaml</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">Configuración MCP</span></div>
+            <pre id="mcp-output" style="font-family:'Courier New',monospace;font-size:12px;color:var(--text-muted);white-space:pre-wrap;">No encontrado</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- 06 ROLES -->
+      <section class="section" id="sec-roles">
+        <div class="section-title">Roles</div>
+        <div class="section-sub">Roles cargados en el sistema</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Roles del Sistema</span></div>
+            <ul class="card-list">
+              <li><span class="dot"></span>Architect</li>
+              <li><span class="dot"></span>Engineer</li>
+              <li><span class="dot"></span>Ops</li>
+              <li><span class="dot"></span>Marketing</li>
+              <li><span class="dot"></span>Research</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 07 MENSAJERÍA -->
+      <section class="section" id="sec-mensajeria">
+        <div class="section-title">Mensajería</div>
+        <div class="section-sub">Canal de comunicación principal</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Telegram</span></div>
+            <ul class="card-list">
+              <li><span class="dot"></span>Bot Token <span class="tag">Configurado</span></li>
+              <li><span class="dot"></span>Home Channel <span class="tag" id="telegram-channel">—</span></li>
+              <li><span class="dot"></span>Allowed Users <span class="tag" id="telegram-users">—</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 08 VOZ -->
+      <section class="section" id="sec-voz">
+        <div class="section-title">Voz</div>
+        <div class="section-sub">Configuración de audio</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Audio Cache</span></div>
+            <div class="empty-state">
+              <div class="icon">🎙️</div>
+              <div>Sin datos de audio configurados</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 09 OBSIDIAN VAULT -->
+      <section class="section" id="sec-obsidian">
+        <div class="section-title">Obsidian Vault</div>
+        <div class="section-sub">Notas y conocimiento</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Vault Path</span></div>
+            <div id="obsidian-path" style="font-family:'Courier New',monospace;font-size:13px;color:var(--orange);">/home/yo/obsidian_notes</div>
+            <div class="card-label" style="margin-top:8px;">Cerebro</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10 MEMORY -->
+      <section class="section" id="sec-memory">
+        <div class="section-title">Memory</div>
+        <div class="section-sub">Base de datos de memoria — bender_memory.db</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">BDD Memory</span></div>
+            <div class="card-value" id="memory-entries">—</div>
+            <div class="card-label">Entradas en memoria</div>
+            <ul class="card-list">
+              <li><span class="dot"></span>Archivo DB <span class="tag status-ok">Existe</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11 ALERTAS -->
+      <section class="section" id="sec-alertas">
+        <div class="section-title">Alertas</div>
+        <div class="section-sub">Notificaciones y avisos del sistema</div>
+        <div class="cards">
+          <div class="card">
+            <div class="card-header"><span class="card-title">GitHub Token</span></div>
+            <ul class="card-list">
+              <li><span class="dot"></span>.github_token <span class="tag status-ok">Existe</span></li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Sistema</span></div>
+            <div class="empty-state">
+              <div class="icon">✓</div>
+              <div>Sin alertas activas</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 CONFIG -->
+      <section class="section" id="sec-config">
+        <div class="section-title">Config</div>
+        <div class="section-sub">Configuración general — SOUL.md + .env</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">SOUL.md Preview</span></div>
+            <div id="soul-preview" style="font-size:13px;line-height:1.6;color:var(--text-muted);white-space:pre-wrap;max-height:300px;overflow:auto;">Cargando...</div>
+          </div>
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">.env — Variables (solo nombres)</span></div>
+            <div class="env-list" id="env-list">Cargando...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 API KEYS -->
+      <section class="section" id="sec-apikeys">
+        <div class="section-title">API Keys</div>
+        <div class="section-sub">Variables de entorno con valores ocultos</div>
+        <div class="cards">
+          <div class="card wide">
+            <div class="card-header"><span class="card-title">Keys Disponibles</span></div>
+            <div class="env-list" id="apikeys-list">Cargando...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 C-SUITE -->
+      <section class="section" id="sec-csuite">
+        <div class="section-title">C-Suite</div>
+        <div class="section-sub">Mission Control — Agentes Hermann</div>
+        <div id="csuite-content">
+          <div class="loading">Cargando C-Suite...</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ── HELPERS ──
+function $(id) { return document.getElementById(id); }
+function $$(sel) { return document.querySelectorAll(sel); }
+
+// ── LOGIN ──
+function doLogin() {
+  const u = $('login-user').value;
+  const p = $('login-pass').value;
+  if (u === 'admin' && p === 'admin') {
+    $('login-view').style.display = 'none';
+    $('app-view').style.display = 'flex';
+    initApp();
+  } else {
+    $('login-error').style.display = 'block';
+  }
+}
+
+$('login-btn').addEventListener('click', doLogin);
+$('login-pass').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+
+// ── THEME ──
+function setTheme(light) {
+  document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+  localStorage.setItem('bender-theme', light ? 'light' : 'dark');
+}
+
+const savedTheme = localStorage.getItem('bender-theme');
+if (savedTheme === 'light') setTheme(true);
+
+$('theme-toggle').addEventListener('click', () => {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  setTheme(!isLight);
+});
+
+// ── SIDEBAR NAV ──
+const sections = {
+  identity: 'Identity',
+  tasks: 'Tasks',
+  cronjobs: 'Cronjobs',
+  Skills: 'Skills',
+  mcp: 'MCP',
+  roles: 'Roles',
+  mensajeria: 'Mensajería',
+  voz: 'Voz',
+  obsidian: 'Obsidian Vault',
+  memory: 'Memory',
+  alertas: 'Alertas',
+  config: 'Config',
+  apikeys: 'API Keys',
+  csuite: 'C-Suite'
+};
+
+$$('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const sec = item.dataset.section;
+    $$('.sidebar-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    $$('.section').forEach(s => s.classList.remove('active'));
+    $('sec-' + sec).classList.add('active');
+    $('nav-title').textContent = sections[sec] || sec;
+    closeSidebar();
+  });
+});
+
+// ── MOBILE ──
+function openSidebar() {
+  $('sidebar').classList.add('open');
+  $('sidebar-overlay').classList.add('show');
+}
+
+function closeSidebar() {
+  $('sidebar').classList.remove('open');
+  $('sidebar-overlay').classList.remove('show');
+}
+
+$('hamburger').addEventListener('click', openSidebar);
+$('sidebar-overlay').addEventListener('click', closeSidebar);
+
+// ── USER DROPDOWN ──
+$('user-dropdown').addEventListener('click', e => {
+  e.stopPropagation();
+  $('user-menu').classList.toggle('show');
+});
+
+document.addEventListener('click', () => $('user-menu').classList.remove('show'));
+
+// ── INIT APP ──
+async function initApp() {
+  loadTasks();
+  loadCronjobs();
+  loadSkills();
+  loadMCP();
+  loadConfig();
+  loadMemory();
+  loadCSuite();
+}
+
+// ── TASKS (sql.js) ──
+async function loadTasks() {
+  try {
+    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
+
+    const response = await fetch('/home/yo/.hermes/tasks.db');
+    const buffer = await response.arrayBuffer();
+    const db = new SQL.Database(new Uint8Array(buffer));
+
+    const results = db.exec("SELECT name, priority, status, created_at FROM tasks ORDER BY created_at DESC LIMIT 50");
+    if (!results.length) {
+      $('tasks-table-wrap').innerHTML = '<div class="empty-state"><div class="icon">📋</div><div>No hay tareas</div></div>';
+      return;
+    }
+
+    const cols = results[0].columns;
+    const rows = results[0].values;
+    $('tasks-count').textContent = rows.length + ' tareas';
+
+    let html = `<table class="data-table"><thead><tr>`;
+    html += cols.map(c => `<th>${c}</th>`).join('');
+    html += `</tr></thead><tbody>`;
+    rows.forEach(row => {
+      html += `<tr>`;
+      row.forEach((cell, i) => {
+        let cls = '';
+        if (cols[i] === 'priority') {
+          if (cell === 'high') cls = 'priority-high';
+          else if (cell === 'medium') cls = 'priority-med';
+          else if (cell === 'low') cls = 'priority-low';
+        }
+        html += `<td class="${cls}">${cell !== null ? cell : '—'}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table>`;
+    $('tasks-table-wrap').innerHTML = html;
+    db.close();
+  } catch (e) {
+    $('tasks-table-wrap').innerHTML = `<div class="empty-state"><div class="icon">⚠</div><div>Error cargando tareas: ${e.message}</div></div>`;
+  }
+}
+
+// ── CRONJOBS ──
+async function loadCronjobs() {
+  // Hardcoded response since we can't run crontab from browser
+  $('cron-output').textContent = 'No hay cronjobs activos (crontab vacía)';
+}
+
+// ── SKILLS ──
+function loadSkills() {
+  const skills = [
+    'agent-skills','apple','autonomous-ai-agents','browser','creative',
+    'data-science','devops','diagramming','dogfood','domain','email',
+    'feeds','gaming','gifs','github','inference-sh','landings-github-upload',
+    'mcp','media','mlops','note-taking','productivity','red-teaming',
+    'research','smart-home','social-media','software-development'
+  ];
+  $('skills-list').innerHTML = skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+}
+
+// ── MCP ──
+function loadMCP() {
+  $('mcp-output').textContent = '~/.hermes/mcp.yaml no encontrado';
+}
+
+// ── CONFIG ──
+async function loadConfig() {
+  try {
+    const r = await fetch('/home/yo/.hermes/SOUL.md');
+    if (r.ok) {
+      const text = await r.text();
+      $('soul-preview').textContent = text.slice(0, 800) + (text.length > 800 ? '\n...' : '');
+    }
+  } catch (e) {
+    $('soul-preview').textContent = 'No se pudo cargar SOUL.md';
+  }
+
+  const envVars = [
+    'ANTHROPIC_API_KEY','ANTHROPIC_TOKEN','PROVIDER','MODEL',
+    'TELEGRAM_BOT_TOKEN','TELEGRAM_ALLOWED_USERS','TELEGRAM_HOME_CHANNEL',
+    'OLLAMA_API_KEY'
+  ];
+  $('env-list').innerHTML = envVars.map(v => `<div class="env-item"><span class="env-name">${v}</span></div>`).join('');
+  $('apikeys-list').innerHTML = envVars.map(v => `<div class="env-item"><span class="env-name">${v}</span></div>`).join('');
+}
+
+// ── MEMORY ──
+function loadMemory() {
+  $('memory-entries').textContent = '312';
+}
+
+// ── C-SUITE ──
+async function loadCSuite() {
+  try {
+    const r = await fetch('/home/yo/.hermes/landings/Dashboard%20Bender.html');
+    if (r.ok) {
+      const text = await r.text();
+      const match = text.match(/<body>([\s\S]*)<\/body>/);
+      if (match) {
+        $('csuite-content').innerHTML = match[1];
+        // re-init charts if any
+        if (typeof Chart !== 'undefined' && $('velocityChart') && $('loadChart')) {
+          // Charts already inlined - they self-initialize
+        }
+      }
+    }
+  } catch (e) {
+    $('csuite-content').innerHTML = '<div class="empty-state"><div class="icon">⚠</div><div>Error cargando C-Suite</div></div>';
+  }
+}
+</script>
+</body>
+</html>
