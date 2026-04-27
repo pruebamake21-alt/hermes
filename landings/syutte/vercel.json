@@ -1,9 +1,5 @@
 {
   "buildCommand": "npx prisma generate && next build",
   "framework": "nextjs",
-  "installCommand": "npm install",
-  "env": {
-    "DATABASE_URL": "postgresql://dummy:dummy@localhost:5432/dummy",
-    "DEMO_MODE": "true"
-  }
+  "installCommand": "npm install"
 }
