@@ -1,5 +1,9 @@
 {
-  "buildCommand": "DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy npx prisma generate && next build",
+  "buildCommand": "npx prisma generate && next build",
   "framework": "nextjs",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "env": {
+    "DATABASE_URL": "postgresql://dummy:dummy@localhost:5432/dummy",
+    "DEMO_MODE": "true"
+  }
 }
