@@ -1,0 +1,9 @@
+titulo,descripcion,precio,tipo_operacion,tipo_inmueble,habitaciones,banos,metros_utiles,metros_construidos,zona,piscina,garaje,terraza,ascensor,direccion
+Piso luminoso en el centro,Piso reformado con vistas,250000,VENTA,PISO,3,2,80,95,Centro,no,si,si,si,Calle Mayor 12
+Casa con jardin en las afueras,Casa adosada con jardin privado,380000,VENTA,CASA,4,3,120,140,Norte,si,si,si,no,Av. de la Sierra 45
+Local comercial en zona transitada,Local con escaparate,1200,ALQUILER,LOCAL,0,1,50,55,Centro,no,no,no,no,Calle Comercio 8
+Piso de 2 habitaciones para alquiler,Piso reformado con cocina americana,900,ALQUILER,PISO,2,1,60,70,Casco Historico,no,no,si,no,Plaza Mayor 3
+Oficina con parking,Edificio corporativo con seguridad 24h,2000,ALQUILER,OFICINA,0,2,90,100,Tecnologia,no,si,no,si,Calle Innovacion 22
+Terreno urbanizable,Parcela de 500m2 con vistas al mar,175000,VENTA,TERRENO,0,0,500,500,Costa,no,no,no,no,Paraje Los Olivos
+Atico duplex con terraza,Atico de lujo con terraza de 40m2,420000,VENTA,PISO,3,2,100,120,Centro,no,si,si,si,Calle del Sol 7
+Piso vacacional en el casco historico,Piso turistico con licencia,1500,ALQUILER_VACACIONAL,PISO,2,1,55,65,Casco Historico,no,no,no,no,Plaza del Ayuntamiento 5

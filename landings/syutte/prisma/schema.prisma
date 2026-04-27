@@ -1,0 +1,354 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth (NextAuth) ──────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Users & Tenants ──────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  role          UserRole  @default(MEMBER)
+  tenantId      String?
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id])
+  accounts      Account[]
+  sessions      Session[]
+  projects      Project[]
+  properties    Property[]
+  leads         Lead[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([email])
+}
+
+model Tenant {
+  id                  String             @id @default(cuid())
+  name                String
+  slug                String             @unique
+  plan                Plan               @default(FREE)
+  stripeCustomerId    String?            @unique
+  stripeSubId         String?            @unique
+  stripePriceId       String?
+  subStatus           SubscriptionStatus @default(INACTIVE)
+  onboardingCompleted Boolean            @default(false)
+  vapiAssistantId     String?
+  config              Json?              // Vapi config: businessName, phone, tone, etc.
+  users               User[]
+  projects            Project[]
+  properties          Property[]
+  leads               Lead[]
+  calls               Call[]
+  appointments        Appointment[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+}
+
+// ─── App Models ─────────────────────────────────────────
+
+enum ProjectStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?       @db.Text
+  status      ProjectStatus @default(ACTIVE)
+  tenantId    String
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+}
+
+// ─── Property ─────────────────────────────────────────────
+
+enum OperationType {
+  VENTA
+  ALQUILER
+  ALQUILER_VACACIONAL
+}
+
+enum PropertyType {
+  PISO
+  CASA
+  LOCAL
+  OFICINA
+  TERRENO
+}
+
+enum PropertyStatus {
+  DISPONIBLE
+  RESERVADO
+  VENDIDO
+  ALQUILADO
+}
+
+enum EnergyCert {
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+}
+
+model Property {
+  id               String         @id @default(cuid())
+  tenantId         String
+  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User           @relation(fields: [userId], references: [id])
+
+  // Información básica
+  operationType    OperationType
+  propertyType     PropertyType
+  price            Decimal        @db.Decimal(12, 2)
+  currency         String         @default("EUR")
+  status           PropertyStatus @default(DISPONIBLE)
+
+  // Características físicas
+  usableSurface    Decimal?       @db.Decimal(10, 2)
+  builtSurface     Decimal?       @db.Decimal(10, 2)
+  bedrooms         Int?
+  bathrooms        Int?
+  toilets          Int?
+  floor            String?
+  hasElevator      Boolean        @default(false)
+  terrace          Boolean        @default(false)
+  balcony          Boolean        @default(false)
+  garage           Boolean        @default(false)
+  storageRoom      Boolean        @default(false)
+  pool             Boolean        @default(false)
+  airConditioning  Boolean        @default(false)
+  heating          Boolean        @default(false)
+  energyCert       EnergyCert?
+
+  // Ubicación
+  city             String?
+  address          String?
+  latitude         Float?
+  longitude        Float?
+  zone             String?
+  hideExactAddress Boolean        @default(false)
+
+  // Multimedia
+  title            String?
+  description      String?        @db.Text
+  photos           String[]       @default([])
+
+  leads            Lead[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@index([city])
+  @@index([zone])
+}
+
+// ─── Lead ─────────────────────────────────────────────────
+
+enum LeadChannel {
+  llamada_telefonica
+  web
+  manual
+  whatsapp
+}
+
+enum Urgencia {
+  inmediata
+  primer_mes
+  sin_urgencia
+}
+
+enum TipoConsulta {
+  comprar
+  alquilar
+  vender
+  tasar
+  otro
+}
+
+enum LeadStatus {
+  Nuevo
+  Contactado
+  Visita_programada
+  Descartado
+  Ganado
+}
+
+model Lead {
+  id             String         @id @default(cuid())
+  tenantId       String
+  tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?          @relation(fields: [userId], references: [id])
+
+  nombre         String
+  telefono       String
+  email          String?
+  presupuesto    Decimal?       @db.Decimal(12, 2)
+  canal          LeadChannel    @default(llamada_telefonica)
+  financiacion   Boolean        @default(false)
+  urgencia       Urgencia       @default(sin_urgencia)
+  idioma         String         @default("es")
+  propertyId     String?
+  property       Property?      @relation(fields: [propertyId], references: [id])
+  tipoConsulta   TipoConsulta   @default(otro)
+  estado         LeadStatus     @default(Nuevo)
+  notasAgente    String?        @db.Text
+  notas          String?        @db.Text
+  ultimoContacto DateTime?
+  calls          Call[]
+  appointments   Appointment[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([estado])
+  @@index([propertyId])
+}
+
+// ─── Call ─────────────────────────────────────────────────
+
+enum Satisfaccion {
+  bien
+  frustrado
+  rechazo_ia
+  indiferente
+}
+
+enum CallStatus {
+  completada
+  fallida
+  no_contesta
+  ocupado
+}
+
+model Call {
+  id              String        @id @default(cuid())
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leadId          String?
+  lead            Lead?         @relation(fields: [leadId], references: [id])
+
+  vapiCallId      String?   @unique
+  customerPhone   String?
+  duracion        Int?          // segundos
+  grabacionUrl    String?
+  transcripcion   String?       @db.Text
+  resumen         String?       @db.Text
+  satisfaccion    Satisfaccion?
+  coste           Decimal?      @db.Decimal(10, 6)
+  estado          CallStatus    @default(completada)
+  startedAt       DateTime?
+  endedAt         DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([tenantId])
+  @@index([leadId])
+  @@index([vapiCallId])
+}
+
+// ─── Appointment ─────────────────────────────────────────
+
+model Appointment {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leadId      String?
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+
+  title       String
+  description String?  @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("scheduled") // scheduled | completed | cancelled
+  createdBy   String?  // "agent" | "manual"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([leadId])
+  @@index([startDate])
+}
