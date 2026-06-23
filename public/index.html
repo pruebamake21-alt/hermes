@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hermes Portal — Envíos Ultra Rápidos</title>
+  <meta name="description" content="Portal oficial de Hermes. Transmite mensajes a la velocidad del mensajero de los dioses. Desplegado en Railway.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glows">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+  </div>
+
+  <main class="container">
+    <header class="header">
+      <div class="logo-area">
+        <div class="logo-wings">
+          <svg class="wing-left" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M90 20C60 20 40 45 10 90C45 75 75 55 90 20Z" fill="url(#gold-grad)"/>
+            <path d="M80 35C55 38 40 55 20 90C45 80 65 65 80 35Z" fill="rgba(255,255,255,0.4)"/>
+            <defs>
+              <linearGradient id="gold-grad" x1="10" y1="90" x2="90" y2="20" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#FFD700"/>
+                <stop offset="1" stop-color="#FFA500"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="logo-text">HERMES</span>
+          <svg class="wing-right" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 20C40 20 60 45 90 90C55 75 25 55 10 20Z" fill="url(#gold-grad)"/>
+            <path d="M20 35C45 38 60 55 80 90C55 80 35 65 20 35Z" fill="rgba(255,255,255,0.4)"/>
+          </svg>
+        </div>
+      </div>
+      <p class="tagline">Mensajería instantánea a la velocidad de la luz. Desplegado en producción.</p>
+    </header>
+
+    <section class="grid">
+      <!-- Formulario -->
+      <div class="card glass shadow-premium animate-fade-in">
+        <h2 class="card-title">Enviar Mensaje Divino</h2>
+        <form id="msg-form" class="msg-form">
+          <div class="input-group">
+            <label for="recipient">Destinatario</label>
+            <input type="text" id="recipient" placeholder="Ej. Zeus, Olimpo" required autocomplete="off">
+          </div>
+          <div class="input-group">
+            <label for="message">Mensaje</label>
+            <textarea id="message" rows="4" placeholder="Escribe tu mensaje secreto..." required></textarea>
+          </div>
+          <button type="submit" id="send-btn" class="btn-primary">
+            <span>Enviar con Hermes</span>
+            <span class="btn-shine"></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Dashboard y Logs -->
+      <div class="card glass shadow-premium animate-fade-in delay-1">
+        <h2 class="card-title">Métricas de Envío</h2>
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">Latencia Promedio</span>
+            <span class="metric-value" id="latency-val">0ms</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Mensajes Enviados</span>
+            <span class="metric-value" id="sent-count">0</span>
+          </div>
+        </div>
+
+        <h3 class="sub-title">Registro de Envíos</h3>
+        <div class="log-container" id="log-container">
+          <p class="log-placeholder">Esperando mensajes para entregar...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer / Railway Status -->
+    <footer class="footer-status">
+      <div class="status-badge">
+        <span class="status-dot green"></span>
+        <span class="status-text">Railway: Online</span>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot purple"></span>
+        <a href="https://github.com" target="_blank" id="repo-link" class="repo-link">GitHub Repo: Hermes</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById('msg-form');
+    const recipientInput = document.getElementById('recipient');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('send-btn');
+    const logContainer = document.getElementById('log-container');
+    const latencyVal = document.getElementById('latency-val');
+    const sentCountVal = document.getElementById('sent-count');
+
+    let totalLatency = 0;
+    let sentCount = 0;
+
+    // Cargar mensajes guardados en localStorage
+    const savedLogs = JSON.parse(localStorage.getItem('hermes_logs') || '[]');
+    if (savedLogs.length > 0) {
+      logContainer.innerHTML = '';
+      savedLogs.forEach(log => appendLog(log));
+      updateMetrics();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const recipient = recipientInput.value.trim();
+      const message = messageInput.value.trim();
+      
+      if (!recipient || !message) return;
+
+      // Animación de envío
+      sendBtn.classList.add('sending');
+      sendBtn.disabled = true;
+
+      const startTime = performance.now();
+
+      try {
+        const response = await fetch('/api/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ recipient, message })
+        });
+
+        const data = await response.json();
+        const endTime = performance.now();
+        const clientLatency = Math.round(endTime - startTime);
+
+        if (response.ok) {
+          const logEntry = {
+            id: data.messageId,
+            recipient,
+            message,
+            latency: clientLatency,
+            timestamp: new Date().toLocaleTimeString()
+          };
+
+          saveLog(logEntry);
+          appendLog(logEntry);
+          updateMetrics();
+
+          // Limpiar formulario con transición
+          messageInput.value = '';
+          recipientInput.value = '';
+        } else {
+          showError('Error al entregar el mensaje');
+        }
+      } catch (err) {
+        showError('Conexión perdida con el Olimpo');
+      } finally {
+        setTimeout(() => {
+          sendBtn.classList.remove('sending');
+          sendBtn.disabled = false;
+        }, 600);
+      }
+    });
+
+    function saveLog(entry) {
+      const logs = JSON.parse(localStorage.getItem('hermes_logs') || '[]');
+      logs.unshift(entry); // Agregar al inicio
+      if (logs.length > 10) logs.pop(); // Mantener últimos 10
+      localStorage.setItem('hermes_logs', JSON.stringify(logs));
+    }
+
+    function appendLog(log) {
+      if (logContainer.querySelector('.log-placeholder')) {
+        logContainer.innerHTML = '';
+      }
+
+      const logEl = document.createElement('div');
+      logEl.className = 'log-card animate-slide-in';
+      logEl.innerHTML = `
+        <div class="log-header">
+          <span class="log-id">#${log.id}</span>
+          <span class="log-time">${log.timestamp}</span>
+        </div>
+        <p class="log-body"><strong>Para ${escapeHtml(log.recipient)}:</strong> ${escapeHtml(log.message)}</p>
+        <div class="log-footer">
+          <span class="log-latency">⚡ ${log.latency}ms</span>
+        </div>
+      `;
+      logContainer.insertBefore(logEl, logContainer.firstChild);
+    }
+
+    function updateMetrics() {
+      const logs = JSON.parse(localStorage.getItem('hermes_logs') || '[]');
+      sentCount = logs.length;
+      sentCountVal.textContent = sentCount;
+
+      if (sentCount > 0) {
+        const sum = logs.reduce((acc, curr) => acc + curr.latency, 0);
+        latencyVal.textContent = `${Math.round(sum / sentCount)}ms`;
+      } else {
+        latencyVal.textContent = '0ms';
+      }
+    }
+
+    function showError(msg) {
+      const errEl = document.createElement('div');
+      errEl.className = 'log-card error-card animate-slide-in';
+      errEl.innerHTML = `<p class="error-msg">⚠️ ${msg}</p>`;
+      logContainer.insertBefore(errEl, logContainer.firstChild);
+      setTimeout(() => errEl.remove(), 4000);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+  </script>
+</body>
+</html>
